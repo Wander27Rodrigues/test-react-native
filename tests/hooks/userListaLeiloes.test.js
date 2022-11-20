@@ -1,25 +1,46 @@
-import { renderHook } from '@testing-library/react-hooks';
-import userListaLeiloes from '../../src/hooks/useListaLeiloes';
+import { renderHook, act } from '@testing-library/react-hooks';
+import useListaLeiloes from '../../src/hooks/useListaLeiloes';
 
 import { obtemLeiloes } from '../../src/repositorio/leilao';
 
 jest.mock('../../src/repositorio/leilao');
 
 const mockLeiloes = [
-    {
-        id: 1,
-        nome: 'Leilão',
-        descricao: 'teste'
-    }
+  {
+    id: 1,
+    nome: 'Leilão',
+    descricao: 'Descrição do leilão'
+  }
 ];
 
-decribe('hooks/userListaLeiloes', () => {
+const mockLeiloesAtualizada = [
+  {
+    id: 1,
+    nome: 'Leilão',
+    descricao: 'Descrição do leilão'
+  },
+  {
+    id: 2,
+    nome: 'Leilão 2',
+    descricao: 'Descrição do leilão 2'
+  }
+];
 
-    it('retorna uma lista de leiloes em uma fuction para atualizar', async () => {
-        obtemLeiloes.mockImplementation(() => mockLeiloes);
-        const { result, waitForNextUpdate } = renderHook(() => userListaLeiloes());
-        console.log(result.current[0]);
-        await waitForNextUpdate();
-        console.log(result.current[0]);
-    });
+describe('hooks/useListaLeiloes', () => {
+
+  it('deve retornar uma lista de leiloes e uma função para atualizar', async () => {
+    obtemLeiloes.mockImplementation(() => mockLeiloes);
+
+    const { result, waitForNextUpdate } = renderHook(() => useListaLeiloes());
+    expect(result.current[0]).toEqual([]);
+
+    await waitForNextUpdate();
+    expect(result.current[0]).toEqual(mockLeiloes);
+
+    obtemLeiloes.mockImplementation(() => mockLeiloesAtualizada);
+
+    await act(() => result.current[1]());
+    expect(result.current[0]).toEqual(mockLeiloesAtualizada);
+  });
+
 });
